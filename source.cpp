@@ -14,7 +14,9 @@
 
 #define VIEWPORT_EXTENT 50
 
-struct Point
+#define DEGREE_INCREMENT 2
+
+struct Vertex
 {
   float x;
   float y;
@@ -26,16 +28,20 @@ void glInit();
 void reshape(int width, int height);
 void setupMVPMatrices();
 void display();
-void readInPointData(char *filename, std::vector<Point> &pointList);
+void readInVertexData(char *filename, std::vector<Vertex> &vertexList);
+void generateDiscreteProfiles(std::vector<std::vector<Vertex> > &profileList, std::vector<Vertex> &originalProfile);
 
 int main(int argc, char* argv[])
 {
+
     glutInit(&argc, argv);
     glInit();
 
-    std::vector<Point> points;
+    std::vector<Vertex> verts;
+    std::vector<std::vector<Vertex> > profiles;
 
-    readInPointData("vase.txt", points);
+    readInVertexData("vase.txt", verts);
+    generateDiscreteProfiles(profiles, verts);
 
     glutMainLoop();
 
@@ -84,7 +90,7 @@ void display()
     glutSwapBuffers();
 }
 
-void readInPointData(char *filename, std::vector<Point> &pointList)
+void readInVertexData(char *filename, std::vector<Vertex> &vertexList)
 {
     FILE *fp;
     fp = fopen(filename, "r");
@@ -92,24 +98,31 @@ void readInPointData(char *filename, std::vector<Point> &pointList)
     if (fp)
     {
 
-        Point point;
+         Vertex vertex;
 
-	while(fscanf(fp, "%f %f %f %f\n", &point.x, &point.y, &point.z, &point.w) != EOF)
-	{
-	    pointList.push_back(point);
-	}
+	       while(fscanf(fp, "%f %f %f %f\n", &vertex.x, &vertex.y, &vertex.z, &vertex.w) != EOF)
+	       {
+	           vertexList.push_back(vertex);
+	       }
 
-	if(!fclose(fp))
-	{
-	    return;
-	}
-	else {
-	    printf("Problem closing the file.");
-	}
+	       if(!fclose(fp))
+	       {
+	         return;
+	       }
+	       else {
+	         printf("Problem closing the file.\n");
+	       }
     }
     else
     {
-	printf("Problem opening the file.");
+	       printf("Problem opening the file.\n");
     }
+
+}
+
+void generateDiscreteProfiles(std::vector<std::vector<Vertex> > &profileList, std::vector<Vertex> &originalProfile)
+{
+
+
 
 }
