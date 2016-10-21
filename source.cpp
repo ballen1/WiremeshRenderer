@@ -5,6 +5,7 @@
 #endif
 
 #include <stdio.h>
+#include <math.h>
 #include <vector>
 
 #define SCREEN_WIDTH 600
@@ -123,6 +124,29 @@ void readInVertexData(char *filename, std::vector<Vertex> &vertexList)
 void generateDiscreteProfiles(std::vector<std::vector<Vertex> > &profileList, std::vector<Vertex> &originalProfile)
 {
 
+  int numberOfProfiles = 360 / DEGREE_INCREMENT;
 
+  profileList.push_back(originalProfile);
 
+  for (int i = 1; i < numberOfProfiles; i++)
+  {
+
+    float angle = (i * DEGREE_INCREMENT) * (M_PI / 180.0);
+    std::vector<Vertex> profile;
+
+    for (int i = 0; i < originalProfile.size(); i++)
+    {
+      Vertex vert;
+
+      vert.x = (originalProfile[i].x * cos(angle)) - (originalProfile[i].y * sin(angle));
+      vert.y = (originalProfile[i].x * sin(angle)) + (originalProfile[i].y * cos(angle));
+      vert.z = originalProfile[i].z;
+      vert.w = originalProfile[i].w;
+
+      profile.push_back(vert);
+    }
+
+    profileList.push_back(profile);
+
+  }
 }
