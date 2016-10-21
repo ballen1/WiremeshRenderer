@@ -17,12 +17,27 @@
 
 #define DEGREE_INCREMENT 2
 
+#define PI 3.14159265359
+
 struct Vertex
 {
-  float x;
-  float y;
-  float z;
-  float w;
+    float x;
+    float y;
+    float z;
+    float w;
+};
+
+struct Face
+{
+    int p1;
+    int p2;
+    int p3;
+};
+
+struct Mesh
+{
+    std::vector<Vertex> vertices;
+    std::vector<Face> faces;
 };
 
 void glInit();
@@ -30,7 +45,9 @@ void reshape(int width, int height);
 void setupMVPMatrices();
 void display();
 void readInVertexData(char *filename, std::vector<Vertex> &vertexList);
-void generateDiscreteProfiles(std::vector<std::vector<Vertex> > &profileList, std::vector<Vertex> &originalProfile);
+void generateDiscreteProfiles(std::vector<std::vector<Vertex> > &profileList, std::vector<Vertex> &originalProfile,
+			      Mesh &mesh);
+void calculateMeshFaces(Mesh &mesh, int profileLength);
 
 int main(int argc, char* argv[])
 {
@@ -41,8 +58,11 @@ int main(int argc, char* argv[])
     std::vector<Vertex> verts;
     std::vector<std::vector<Vertex> > profiles;
 
+    Mesh vaseMesh;
+
     readInVertexData("vase.txt", verts);
-    generateDiscreteProfiles(profiles, verts);
+    generateDiscreteProfiles(profiles, verts, vaseMesh);
+    calculateMeshFaces(vaseMesh, verts.size());
 
     glutMainLoop();
 
@@ -67,8 +87,8 @@ void glInit()
 void reshape(int width, int height)
 {
 
-  glViewport(0, 0, width, height);
-  setupMVPMatrices();
+    glViewport(0, 0, width, height);
+    setupMVPMatrices();
 
 }
 
@@ -76,12 +96,12 @@ void reshape(int width, int height)
 void setupMVPMatrices()
 {
 
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
-  glOrtho(-VIEWPORT_EXTENT, VIEWPORT_EXTENT, -VIEWPORT_EXTENT, VIEWPORT_EXTENT, -1.0, 1.0);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glOrtho(-VIEWPORT_EXTENT, VIEWPORT_EXTENT, -VIEWPORT_EXTENT, VIEWPORT_EXTENT, -1.0, 1.0);
 
-  glMatrixMode(GL_MODELVIEW);
-  glLoadIdentity();
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
 
 }
 
@@ -101,52 +121,103 @@ void readInVertexData(char *filename, std::vector<Vertex> &vertexList)
 
          Vertex vertex;
 
-	       while(fscanf(fp, "%f %f %f %f\n", &vertex.x, &vertex.y, &vertex.z, &vertex.w) != EOF)
-	       {
-	           vertexList.push_back(vertex);
-	       }
+	 while(fscanf(fp, "%f %f %f %f\n", &vertex.x, &vertex.y, &vertex.z, &vertex.w) != EOF)
+	 {
+	     vertexList.push_back(vertex);
+	 }
 
-	       if(!fclose(fp))
-	       {
-	         return;
-	       }
-	       else {
-	         printf("Problem closing the file.\n");
-	       }
+	 if(!fclose(fp))
+	 {
+	     return;
+	 }
+	 else {
+	     printf("Problem closing the file.\n");
+	 }
     }
     else
     {
-	       printf("Problem opening the file.\n");
+	printf("Problem opening the file.\n");
     }
 
 }
 
-void generateDiscreteProfiles(std::vector<std::vector<Vertex> > &profileList, std::vector<Vertex> &originalProfile)
+void generateDiscreteProfiles(std::vector<std::vector<Vertex> > &profileList, std::vector<Vertex> &originalProfile, Mesh &mesh)
 {
 
-  int numberOfProfiles = 360 / DEGREE_INCREMENT;
+    int numberOfProfiles = 360 / DEGREE_INCREMENT;
 
-  profileList.push_back(originalProfile);
-
-  for (int i = 1; i < numberOfProfiles; i++)
-  {
-
-    float angle = (i * DEGREE_INCREMENT) * (M_PI / 180.0);
-    std::vector<Vertex> profile;
+    profileList.push_back(originalProfile);
 
     for (int i = 0; i < originalProfile.size(); i++)
     {
-      Vertex vert;
-
-      vert.x = (originalProfile[i].x * cos(angle)) - (originalProfile[i].y * sin(angle));
-      vert.y = (originalProfile[i].x * sin(angle)) + (originalProfile[i].y * cos(angle));
-      vert.z = originalProfile[i].z;
-      vert.w = originalProfile[i].w;
-
-      profile.push_back(vert);
+	mesh.vertices.push_back(originalProfile[i]);
     }
 
-    profileList.push_back(profile);
+    for (int i = 1; i < numberOfProfiles; i++)
+    {
 
-  }
+	float angle = (i * DEGREE_INCREMENT) * (PI / 180.0);
+	std::vector<Vertex> profile;
+
+	for (int i = 0; i < originalProfile.size(); i++)
+	{
+	    Vertex vert;
+
+	    vert.x = (originalProfile[i].x * cos(angle)) - (originalProfile[i].y * sin(angle));
+	    vert.y = (originalProfile[i].x * sin(angle)) + (originalProfile[i].y * cos(angle));
+	    vert.z = originalProfile[i].z;
+	    vert.w = originalProfile[i].w;
+
+	    profile.push_back(vert);
+	    mesh.vertices.push_back(vert);
+	}
+
+	profileList.push_back(profile);
+
+    }
+}
+
+void calculateMeshFaces(Mesh &mesh, int profileLength)
+{
+    int numberOfProfiles = 360 / DEGREE_INCREMENT;
+
+    int anchor = 0;
+    int wrapAroundProfile = numberOfProfiles-1;
+
+    // Do the triangulation in 2 triangle "chunks"
+    for (int i = 0; i <= wrapAroundProfile; i++)
+    {
+
+	for (int j = 0; j < profileLength - 1; j++)
+	{
+
+	    Face face1;
+	    Face face2;
+
+	    face1.p1 = anchor;
+	    face1.p2 = anchor + profileLength;
+	    face1.p3 = anchor + 1;
+
+	    face2.p1 = anchor + profileLength;
+	    face2.p2 = anchor + 1;
+	    face2.p3 = anchor + profileLength + 1;
+
+	    if (i == wrapAroundProfile)
+	    {
+		face1.p2 %= profileLength;
+		face2.p1 %= profileLength;
+		face2.p3 %= profileLength;
+	    }
+	    
+
+	    mesh.faces.push_back(face1);
+	    mesh.faces.push_back(face2);
+
+	    anchor++;
+	}
+
+	anchor++;
+	
+    }
+
 }
