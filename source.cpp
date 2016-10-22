@@ -27,11 +27,18 @@ struct Vertex
     float w;
 };
 
+struct Vector3 {
+    float x;
+    float y;
+    float z;
+};
+
 struct Face
 {
     int p1;
     int p2;
     int p3;
+    Vector3 normal;
 };
 
 struct Mesh
@@ -48,6 +55,8 @@ void readInVertexData(char *filename, std::vector<Vertex> &vertexList);
 void generateDiscreteProfiles(std::vector<std::vector<Vertex> > &profileList, std::vector<Vertex> &originalProfile,
 			      Mesh &mesh);
 void calculateMeshFaces(Mesh &mesh, int profileLength);
+void calculateNormals(Mesh &mesh);
+Vector3 Vector3From2Points(Vertex p1, Vertex p2);
 
 static Mesh displayMesh;
 
@@ -65,6 +74,7 @@ int main(int argc, char* argv[])
     readInVertexData("vase.txt", verts);
     generateDiscreteProfiles(profiles, verts, vaseMesh);
     calculateMeshFaces(vaseMesh, verts.size());
+    calculateNormals(vaseMesh);
 
     displayMesh = vaseMesh;
 
@@ -251,4 +261,38 @@ void calculateMeshFaces(Mesh &mesh, int profileLength)
 	
     }
 
+}
+
+void calculateNormals(Mesh &mesh)
+{
+    for (int i = 0; i < mesh.faces.size(); i++)
+    {
+	Vertex p3 = mesh.vertices[mesh.faces[i].p3];
+
+	Vector3 v1 = Vector3From2Points(mesh.vertices[mesh.faces[i].p1], p3);
+	Vector3 v2 = Vector3From2Points(mesh.vertices[mesh.faces[i].p2], p3);
+
+	Vector3 crossProd;
+
+	crossProd.x = (v1.y * v2.z) - (v1.z * v2.y);
+	crossProd.y = (v1.z * v2.x) - (v1.x * v2.z);
+	crossProd.z = (v1.x * v2.y) - (v1.y * v2.x);
+
+	float crossProdMagnitude = sqrt((crossProd.x*crossProd.x) + (crossProd.y*crossProd.y) + (crossProd.z*crossProd.z));
+
+	crossProd.x /= crossProdMagnitude;
+	crossProd.y /= crossProdMagnitude;
+	crossProd.z /= crossProdMagnitude;
+    }
+}
+
+Vector3 Vector3From2Points(Vertex p1, Vertex p2)
+{
+    Vector3 vec;
+
+    vec.x = p2.x - p1.x;
+    vec.y = p2.y - p1.y;
+    vec.z = p2.z - p1.z;
+
+    return vec;
 }
