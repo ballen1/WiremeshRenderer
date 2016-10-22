@@ -13,7 +13,7 @@
 #define WIN_STARTX 100
 #define WIN_STARTY 100
 
-#define VIEWPORT_EXTENT 50
+#define VIEWPORT_EXTENT 35
 
 #define DEGREE_INCREMENT 2
 
@@ -75,7 +75,7 @@ int main(int argc, char* argv[])
 
 void glInit()
 {
-    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
     glutInitWindowSize(SCREEN_WIDTH, SCREEN_HEIGHT);
     glutInitWindowPosition(WIN_STARTX, WIN_STARTY);
 
@@ -83,7 +83,10 @@ void glInit()
 
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    glShadeModel(GL_SMOOTH);
+
+    // Lighting and Materials
 
     glutReshapeFunc(reshape);
     glutDisplayFunc(display);
@@ -117,6 +120,9 @@ void display()
 
     glPushMatrix();
     glRotatef(-90.0, 1.0, 0.0, 0.0);
+
+
+    glColor3f(1.0, 0.0, 0.0);
 
     glBegin(GL_TRIANGLES);
     
