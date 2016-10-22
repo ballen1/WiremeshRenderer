@@ -49,6 +49,8 @@ void generateDiscreteProfiles(std::vector<std::vector<Vertex> > &profileList, st
 			      Mesh &mesh);
 void calculateMeshFaces(Mesh &mesh, int profileLength);
 
+static Mesh displayMesh;
+
 int main(int argc, char* argv[])
 {
 
@@ -64,6 +66,8 @@ int main(int argc, char* argv[])
     generateDiscreteProfiles(profiles, verts, vaseMesh);
     calculateMeshFaces(vaseMesh, verts.size());
 
+    displayMesh = vaseMesh;
+
     glutMainLoop();
 
     return(0);
@@ -78,6 +82,8 @@ void glInit()
     glutCreateWindow("Assignment 2");
 
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     glutReshapeFunc(reshape);
     glutDisplayFunc(display);
@@ -98,7 +104,7 @@ void setupMVPMatrices()
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    glOrtho(-VIEWPORT_EXTENT, VIEWPORT_EXTENT, -VIEWPORT_EXTENT, VIEWPORT_EXTENT, -1.0, 1.0);
+    glOrtho(-VIEWPORT_EXTENT, VIEWPORT_EXTENT, -VIEWPORT_EXTENT, VIEWPORT_EXTENT, -VIEWPORT_EXTENT, VIEWPORT_EXTENT);
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
@@ -108,6 +114,25 @@ void setupMVPMatrices()
 void display()
 {
     glClear(GL_COLOR_BUFFER_BIT);
+
+    glPushMatrix();
+    glRotatef(-90.0, 1.0, 0.0, 0.0);
+
+    glBegin(GL_TRIANGLES);
+    
+    for (int i = 0; i < displayMesh.faces.size(); i++)
+    {
+	Vertex p1 = displayMesh.vertices[displayMesh.faces[i].p1];
+	Vertex p2 = displayMesh.vertices[displayMesh.faces[i].p2];
+	Vertex p3 = displayMesh.vertices[displayMesh.faces[i].p3];
+
+	glVertex4f(p1.x, p1.y, p1.z, p1.w);
+	glVertex4f(p2.x, p2.y, p2.z, p2.w);
+	glVertex4f(p3.x, p3.y, p3.z, p3.w);
+    } 
+
+    glEnd();
+    glPopMatrix();
     glutSwapBuffers();
 }
 
