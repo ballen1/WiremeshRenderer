@@ -101,16 +101,14 @@ void glInit()
     GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
     GLfloat mat_shininess[] = { 50.0 };
     GLfloat light_position[] = { 1.0, 1.0, 1.0, 0.0 };
-    GLfloat light1_position[] = {-5.0, -5.0, 0.0, 0.0};
+    GLfloat light1_position[] = {0.0, 0.0, -1.0, 0.0};
     
     glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, mat_specular);
     glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
-    glLightfv(GL_LIGHT0, GL_POSITION, light_position);
-    glLightfv(GL_LIGHT1, GL_POSITION, light1_position);
+    glLightfv(GL_LIGHT0, GL_POSITION, light1_position);
    
     glEnable(GL_LIGHTING);
     glEnable(GL_LIGHT0);
-    glEnable(GL_LIGHT1);
     glEnable(GL_DEPTH_TEST);
 
     glutReshapeFunc(reshape);
