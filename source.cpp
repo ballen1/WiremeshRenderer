@@ -98,6 +98,21 @@ void glInit()
 
     // Lighting and Materials
 
+    GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
+    GLfloat mat_shininess[] = { 50.0 };
+    GLfloat light_position[] = { 1.0, 1.0, 1.0, 0.0 };
+    GLfloat light1_position[] = {-5.0, -5.0, 0.0, 0.0};
+    
+    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, mat_specular);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
+    glLightfv(GL_LIGHT0, GL_POSITION, light_position);
+    glLightfv(GL_LIGHT1, GL_POSITION, light1_position);
+   
+    glEnable(GL_LIGHTING);
+    glEnable(GL_LIGHT0);
+    glEnable(GL_LIGHT1);
+    glEnable(GL_DEPTH_TEST);
+
     glutReshapeFunc(reshape);
     glutDisplayFunc(display);
 
@@ -126,7 +141,7 @@ void setupMVPMatrices()
 
 void display()
 {
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glPushMatrix();
     glRotatef(-90.0, 1.0, 0.0, 0.0);
@@ -141,7 +156,10 @@ void display()
 	Vertex p1 = displayMesh.vertices[displayMesh.faces[i].p1];
 	Vertex p2 = displayMesh.vertices[displayMesh.faces[i].p2];
 	Vertex p3 = displayMesh.vertices[displayMesh.faces[i].p3];
+	
+	Vector3 normal = displayMesh.faces[i].normal;
 
+	glNormal3f(normal.x, normal.y, normal.z);
 	glVertex4f(p1.x, p1.y, p1.z, p1.w);
 	glVertex4f(p2.x, p2.y, p2.z, p2.w);
 	glVertex4f(p3.x, p3.y, p3.z, p3.w);
@@ -239,15 +257,15 @@ void calculateMeshFaces(Mesh &mesh, int profileLength)
 	    face1.p2 = anchor + profileLength;
 	    face1.p3 = anchor + 1;
 
-	    face2.p1 = anchor + profileLength;
-	    face2.p2 = anchor + 1;
+	    face2.p2 = anchor + profileLength;
 	    face2.p3 = anchor + profileLength + 1;
+	    face2.p1 = anchor + 1;
 
 	    if (i == wrapAroundProfile)
 	    {
 		face1.p2 %= profileLength;
-		face2.p1 %= profileLength;
 		face2.p3 %= profileLength;
+		face2.p2 %= profileLength;
 	    }
 	    
 
@@ -269,8 +287,8 @@ void calculateNormals(Mesh &mesh)
     {
 	Vertex p3 = mesh.vertices[mesh.faces[i].p3];
 
-	Vector3 v1 = Vector3From2Points(mesh.vertices[mesh.faces[i].p1], p3);
-	Vector3 v2 = Vector3From2Points(mesh.vertices[mesh.faces[i].p2], p3);
+	Vector3 v2 = Vector3From2Points(p3, mesh.vertices[mesh.faces[i].p1]);
+	Vector3 v1 = Vector3From2Points(p3, mesh.vertices[mesh.faces[i].p2]);
 
 	Vector3 crossProd;
 
@@ -283,6 +301,9 @@ void calculateNormals(Mesh &mesh)
 	crossProd.x /= crossProdMagnitude;
 	crossProd.y /= crossProdMagnitude;
 	crossProd.z /= crossProdMagnitude;
+
+	mesh.faces[i].normal = crossProd;
+
     }
 }
 
