@@ -340,8 +340,6 @@ void drawAxisLines()
     glDisable(GL_LIGHTING);
     glDisable(GL_LIGHT0);
 
-    glPushMatrix();
-
     glBegin(GL_LINES);
     
     // Draw x (red) axis
@@ -360,6 +358,4 @@ void drawAxisLines()
     glVertex3f(0.0, 0.0, 100.0);
 
     glEnd();
-
-    glPopMatrix();
 }
