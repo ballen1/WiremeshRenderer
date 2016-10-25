@@ -13,7 +13,9 @@
 #define WIN_STARTX 100
 #define WIN_STARTY 100
 
-#define VIEWPORT_EXTENT 35
+#define FRUSTUM_EXTENT 1
+#define FRUSTUM_NEAR 1.5
+#define FRUSTUM_FAR 70.0
 
 #define DEGREE_INCREMENT 2
 
@@ -130,7 +132,7 @@ void setupMVPMatrices()
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    glOrtho(-VIEWPORT_EXTENT, VIEWPORT_EXTENT, -VIEWPORT_EXTENT, VIEWPORT_EXTENT, -VIEWPORT_EXTENT, VIEWPORT_EXTENT);
+    glFrustum(-FRUSTUM_EXTENT, FRUSTUM_EXTENT, -FRUSTUM_EXTENT, FRUSTUM_EXTENT, FRUSTUM_NEAR, FRUSTUM_FAR);
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
@@ -142,10 +144,9 @@ void display()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glPushMatrix();
-    glRotatef(-90.0, 1.0, 0.0, 0.0);
-
 
     glColor3f(1.0, 0.0, 0.0);
+    gluLookAt(0.0, -50.0, 15.5, 0.0, 0.0, 15.5, 0.0, 0.0, 1.0);
 
     glBegin(GL_TRIANGLES);
     
