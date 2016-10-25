@@ -59,6 +59,7 @@ void generateDiscreteProfiles(std::vector<std::vector<Vertex> > &profileList, st
 void calculateMeshFaces(Mesh &mesh, int profileLength);
 void calculateNormals(Mesh &mesh);
 Vector3 Vector3From2Points(Vertex p1, Vertex p2);
+void drawAxisLines();
 
 static Mesh displayMesh;
 
@@ -103,14 +104,12 @@ void glInit()
     GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
     GLfloat mat_shininess[] = { 50.0 };
     GLfloat light_position[] = { 1.0, 1.0, 1.0, 0.0 };
-    GLfloat light1_position[] = {0.0, 0.0, -1.0, 0.0};
+    GLfloat light1_position[] = {1.0, 1.0, 0.0, 0.0};
     
     glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, mat_specular);
     glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
     glLightfv(GL_LIGHT0, GL_POSITION, light1_position);
    
-    glEnable(GL_LIGHTING);
-    glEnable(GL_LIGHT0);
     glEnable(GL_DEPTH_TEST);
 
     glutReshapeFunc(reshape);
@@ -145,8 +144,15 @@ void display()
 
     glPushMatrix();
 
-    glColor3f(1.0, 0.0, 0.0);
-    gluLookAt(0.0, -50.0, 25.0, 0.0, 0.0, 10.0, 0.0, 0.0, 1.0);
+    gluLookAt(0.0, 50.0, 25.0, 0.0, 0.0, 10.0, 0.0, 0.0, 1.0);
+
+    // Rotate so that the axes are a bit more visible
+    glRotatef(45.0, 0.0, 0.0, 1.0);
+    drawAxisLines();
+
+
+    glEnable(GL_LIGHTING);
+    glEnable(GL_LIGHT0);
 
     glBegin(GL_TRIANGLES);
     
@@ -315,4 +321,29 @@ Vector3 Vector3From2Points(Vertex p1, Vertex p2)
     vec.z = p2.z - p1.z;
 
     return vec;
+}
+
+void drawAxisLines()
+{
+    glDisable(GL_LIGHTING);
+    glDisable(GL_LIGHT0);
+
+    glBegin(GL_LINES);
+    
+    // Draw x (red) axis
+    glColor3f(1.0, 0.0, 0.0);
+    glVertex3f(0.0, 0.0, 0.0);
+    glVertex3f(100.0, 0.0, 0.0);
+
+    // Draw y (green) axis
+    glColor3f(0.0, 1.0, 0.0);
+    glVertex3f(0.0, 0.0, 0.0);
+    glVertex3f(0.0, 100.0, 0.0);
+
+    // Draw z (blue) axis
+    glColor3f(0.0, 0.0, 1.0);
+    glVertex3f(0.0, 0.0, 0.0);
+    glVertex3f(0.0, 0.0, 100.0);
+
+    glEnd();
 }
