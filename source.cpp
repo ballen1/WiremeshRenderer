@@ -21,6 +21,8 @@
 
 #define PI 3.14159265359
 
+#define LIGHT_SPEED 1
+
 struct Vertex
 {
     float x;
@@ -59,9 +61,12 @@ void generateDiscreteProfiles(std::vector<std::vector<Vertex> > &profileList, st
 void calculateMeshFaces(Mesh &mesh, int profileLength);
 void calculateNormals(Mesh &mesh);
 Vector3 Vector3From2Points(Vertex p1, Vertex p2);
+void initializeMaterialAndLightProperties();
 void drawAxisLines();
 
 static Mesh displayMesh;
+static float lightXDirection;
+static float lightYDirection;
 
 int main(int argc, char* argv[])
 {
@@ -99,22 +104,26 @@ void glInit()
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glShadeModel(GL_SMOOTH);
 
-    // Lighting and Materials
-
-    GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
-    GLfloat mat_shininess[] = { 50.0 };
-    GLfloat light_position[] = { 1.0, 1.0, 1.0, 0.0 };
-    GLfloat light1_position[] = {1.0, 1.0, 0.0, 0.0};
-    
-    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, mat_specular);
-    glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
-    glLightfv(GL_LIGHT0, GL_POSITION, light1_position);
-   
+    initializeMaterialAndLightProperties();
+ 
+    glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
 
     glutReshapeFunc(reshape);
     glutDisplayFunc(display);
 
+}
+
+void initializeMaterialAndLightProperties()
+{
+    GLfloat matDiffuse[] = {0.0, 0.8, 1.0, 1.0};
+    GLfloat lightDiffuse[] = {1.0, 1.0, 1.0, 1.0};
+
+    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, matDiffuse);
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, lightDiffuse);
+
+    lightXDirection = -1.0;
+    lightYDirection = -1.0;
 }
 
 void reshape(int width, int height)
@@ -148,8 +157,11 @@ void display()
 
     // Rotate so that the axes are a bit more visible
     glRotatef(45.0, 0.0, 0.0, 1.0);
+    
     drawAxisLines();
 
+    GLfloat lightPosition[] = {lightXDirection, lightYDirection, 0.0, 0.0};
+    glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);    
 
     glEnable(GL_LIGHTING);
     glEnable(GL_LIGHT0);
@@ -328,6 +340,8 @@ void drawAxisLines()
     glDisable(GL_LIGHTING);
     glDisable(GL_LIGHT0);
 
+    glPushMatrix();
+
     glBegin(GL_LINES);
     
     // Draw x (red) axis
@@ -346,4 +360,6 @@ void drawAxisLines()
     glVertex3f(0.0, 0.0, 100.0);
 
     glEnd();
+
+    glPopMatrix();
 }
