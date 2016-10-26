@@ -117,8 +117,8 @@ void glInit()
 
 void initializeMaterialAndLightProperties()
 {
-    GLfloat matDiffuse[] = {0.0, 0.8, 1.0, 1.0};
-    GLfloat lightDiffuse[] = {1.0, 1.0, 1.0, 1.0};
+    GLfloat matDiffuse[] = {0.0f, 0.8f, 1.0f, 1.0f};
+    GLfloat lightDiffuse[] = {1.0f, 1.0f, 1.0f, 1.0f};
 
     glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, matDiffuse);
     glLightfv(GL_LIGHT0, GL_DIFFUSE, lightDiffuse);
