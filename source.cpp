@@ -63,6 +63,7 @@ void calculateNormals(Mesh &mesh);
 Vector3 Vector3From2Points(Vertex p1, Vertex p2);
 void initializeMaterialAndLightProperties();
 void drawAxisLines();
+void updateLightPosition();
 
 static Mesh displayMesh;
 static float lightXDirection;
@@ -122,8 +123,8 @@ void initializeMaterialAndLightProperties()
     glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, matDiffuse);
     glLightfv(GL_LIGHT0, GL_DIFFUSE, lightDiffuse);
 
-    lightXDirection = -1.0;
-    lightYDirection = -1.0;
+    lightXDirection = -1;
+    lightYDirection = -1;
 }
 
 void reshape(int width, int height)
@@ -185,6 +186,11 @@ void display()
     glEnd();
     glPopMatrix();
     glutSwapBuffers();
+
+    updateLightPosition();
+
+    glutPostRedisplay();
+
 }
 
 void readInVertexData(char *filename, std::vector<Vertex> &vertexList)
@@ -358,4 +364,17 @@ void drawAxisLines()
     glVertex3f(0.0, 0.0, 100.0);
 
     glEnd();
+}
+
+void updateLightPosition()
+{
+
+    float x = lightXDirection;
+    float y = lightYDirection;
+
+    float angle = 0.01 * LIGHT_SPEED;
+
+    lightXDirection = (x * cos(angle)) - (y * sin(angle));
+    lightYDirection = (x * sin(angle)) + (y * cos(angle));
+
 }
