@@ -107,7 +107,6 @@ void glInit()
 
     initializeMaterialAndLightProperties();
  
-    glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
 
     glutReshapeFunc(reshape);
@@ -122,6 +121,8 @@ void initializeMaterialAndLightProperties()
 
     glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, matDiffuse);
     glLightfv(GL_LIGHT0, GL_DIFFUSE, lightDiffuse);
+
+    glLightModelf(GL_LIGHT_MODEL_TWO_SIDE, 1.0);
 
     lightXDirection = -1;
     lightYDirection = -1;
@@ -154,7 +155,7 @@ void display()
 
     glPushMatrix();
 
-    gluLookAt(0.0, 50.0, 25.0, 0.0, 0.0, 10.0, 0.0, 0.0, 1.0);
+    gluLookAt(0.0, 50.0, 35.0, 0.0, 0.0, 10.0, 0.0, 0.0, 1.0);
 
     // Rotate so that the axes are a bit more visible
     glRotatef(45.0, 0.0, 0.0, 1.0);
